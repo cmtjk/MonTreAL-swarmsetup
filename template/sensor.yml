@@ -1,0 +1,35 @@
+version: '3.3'
+
+networks:
+  nsq-net:
+    external:
+      name: nsq-net
+
+secrets:
+  montreal.json:
+    external: true
+
+services:
+  sensors:
+    image: "{IMAGE}:latest-arm"
+    networks:
+      nsq-net:
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /etc/machine-id:/etc/machine-id
+      - /etc/hostname:/etc/pi-hostname
+      - /etc/location.info:/etc/location.info
+    environment:
+      CONFIG_FILE: /run/secrets/montreal.json
+      SERVICE: "manager"
+    tty: true
+    secrets:
+      - montreal.json
+    deploy:
+        mode: global
+        restart_policy:
+            delay: 5s
+        placement:
+            constraints:
+              - node.role == worker
+              - node.labels.sensortype == elv-wde

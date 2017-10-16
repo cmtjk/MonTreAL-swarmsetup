@@ -1,0 +1,57 @@
+version: '3.3'
+
+networks:
+  traefik-net:
+    external:
+      name: traefik-net
+  nsq-net:
+    external:
+      name: nsq-net
+
+secrets:
+  montreal.json:
+    external: true
+
+services:
+  web:
+    image: "{IMAGE}:latest-amd64"
+    environment:
+      CONFIG_FILE: "/run/secrets/montreal.json"
+      SERVICE: "prtgweb"
+    tty: true
+    secrets:
+      - montreal.json
+    networks:
+        nsq-net:
+        traefik-net:
+    deploy:
+      restart_policy:
+          condition: on-failure
+          delay: 5s
+          max_attempts: 3
+      placement:
+        constraints:
+          - node.role == manager
+      labels:
+        traefik.backend: "prtg"
+        traefik.backend.loadbalancer.sticky: "true"
+        traefik.docker.network: "traefik-net"
+        traefik.enable: "true"
+        traefik.frontend.entryPoints: "http"
+        traefik.frontend.passHostHeader: "true"
+        traefik.frontend.rule: "Host:prtg.{DOMAIN}"
+        traefik.port: "5000"
+
+  memcached:
+    image: memcached:latest
+    command: memcached -vv
+    networks:
+      nsq-net:
+    deploy:
+      restart_policy:
+          condition: on-failure
+          delay: 5s
+          max_attempts: 3
+      placement:
+        constraints:
+          - node.role == manager

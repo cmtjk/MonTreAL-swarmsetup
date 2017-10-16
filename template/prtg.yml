@@ -1,0 +1,53 @@
+version: '3.3'
+
+networks:
+  nsq-net:
+    external:
+      name: nsq-net
+
+secrets:
+  montreal.json:
+    external: true
+  PRTG_CREDENTIALS:
+    external: true
+
+services:
+  consumer:
+    image: "IMAGEBASE/montreal:latest-amd64"
+    environment:
+      CONFIG_FILE: "/run/secrets/montreal.json"
+      SERVICE: "prtgconvert"
+    tty: true
+    secrets:
+      - montreal.json
+    networks:
+      nsq-net:
+    deploy:
+      restart_policy:
+          condition: on-failure
+          delay: 5s
+          max_attempts: 3
+      placement:
+        constraints:
+          - node.role == manager
+
+
+  register:
+    image: "IMAGEBASE/montreal:latest-amd64"
+    environment:
+      CONFIG_FILE: "/run/secrets/montreal.json"
+      SERVICE: "prtgregister"
+    tty: true
+    secrets:
+      - montreal.json
+      - PRTG_CREDENTIALS
+    networks:
+      nsq-net:
+    deploy:
+      restart_policy:
+          condition: on-failure
+          delay: 5s
+          max_attempts: 3
+      placement:
+        constraints:
+          - node.role == manager
