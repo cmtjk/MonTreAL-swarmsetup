@@ -2,15 +2,15 @@ hostname: black-pearl
 manage_etc_hosts: true
 
 users:
-  - name: {NAME}
-    gecos: "{GECOS}"
+  - name: cornelius
+    gecos: "cornelius"
     sudo: ALL=(ALL) NOPASSWD:ALL
-    home: {HOME}
+    home: /home/cornelius
     shell: /bin/bash
     groups: users,docker
     lock_passwd: true
     ssh-authorized-keys:
-        -
+        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDKvc90UsU2vPQ8E1qPwhxh6WLK5OyukQjuIp8dKvpCL+24A9mtaAQ2QRoA2VKFgWUSUO+IYHWBJnIW7f86kVNZn157lS5uhAJ+UMIS4HcoRAXRqFItrWHHvRLsLjVlJtQoxTEr4YE2Yw46ekbgoNlchOvzIMUG4nPRVLZE+u6aoVPNouAp0Bn8ENH2bFUAW1r34oENoU63zc1kfdFFebTr54YnJG24fZqJkYpJfTr6Q45wgnLmkLQPHBGDmHBPuVZcRTKskUl99cIelRjZXu9+w5LnNTQhbWBQE8QJEfIK42fV50zVwww9AHzQmSjAegF4efNc2MMvYrHLNCFNnSNd cornelius@manjaro-l540
 
 package_upgrade: false
 packages:
@@ -25,14 +25,14 @@ runcmd:
   - systemctl restart sshd.service
 
   - sed -ie "s|Servers=.*||g" /etc/systemd/timesyncd.conf
-  - echo "Servers={TIMESERVER}" | sudo tee -a /etc/systemd/timesyncd.conf
+  - echo "Servers=0.de.pool.ntp.org" | sudo tee -a /etc/systemd/timesyncd.conf
   - systemctl restart systemd-timesyncd.service
 
   - sed -e "s|ExecStart=/usr/bin/dockerd.*|ExecStart=/usr/bin/dockerd|g" /lib/systemd/system/docker.service | sudo tee /etc/systemd/system/docker.service
   - systemctl daemon-reload
   - systemctl restart docker.service
 
-  - docker swarm join --token {TOKEN} {IP}
+  - docker swarm join --token  SWMTKN-1-3ug8esrjwyzzl814ayl9ncww7nkk853lg9t06tj8kbvfp7kbmi-9vb3azf3dloq9jdhaih4vhtzd 192.168.178.37:2377
 
 power_state:
   mode: reboot

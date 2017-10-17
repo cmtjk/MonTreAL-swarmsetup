@@ -2,8 +2,26 @@
 #
 #
 #
-NAME:=montreal
 
+###############################################
+# Flash SD-Card								  #
+###############################################
+USER:=cornelius
+GECOS:=cornelius
+HOME:=/home/cornelius
+TIMESERVER:=0.de.pool.ntp.org
+SWARM_TOKEN:=SWMTKN-1-3ug8esrjwyzzl814ayl9ncww7nkk853lg9t06tj8kbvfp7kbmi-9vb3azf3dloq9jdhaih4vhtzd
+SWARM_MANAGER_IP:=192.168.178.37:2377
+
+flash_sd:
+	curl -sLo ./flash https://raw.githubusercontent.com/hypriot/flash/master/Linux/flash
+	chmod +x ./flash
+	flash -u cloud-init.yml -d ${DEVICE} ${HYPRIOTOS}
+	rm -f ./flash
+
+
+DOCKER_USER:=r3r57
+NAME:=montreal
 DOMAIN:=montreal.de
 IMAGE:=${DOCKER_USER}/${NAME}
 NETWORK_OPTIONS:=--opt encrypted --attachable --driver overlay
@@ -12,11 +30,11 @@ define start_service
 	$(eval STACK_NAME=${1})
 	$(eval COMPOSE_FILE=${2})
 	#docker login -u ${DOCKER_USER} -p ${DOCKER_PASS} ${DOCKER_REPO}
-	sed -e "s|{DOMAIN}|${DOMAIN}|g" template/${COMPOSE_FILE} > ${COMPOSE_FILE}
+	sed -e "s|{DOMAIN}|${DOMAIN}|g" templates/${COMPOSE_FILE} > ${COMPOSE_FILE}
 	sed -i -e "s|{IMAGE}|${IMAGE}|g" ${COMPOSE_FILE}
 	sed -i -e "s|{IMAGE}|${IMAGE}|g" montreal.json
 	docker stack rm ${STACK_NAME} || true
-	docker stack deploy --with-registry-auth --prune --resolve-image changed --compose-file ${COMPOSE_FILE} ${STACK_NAME}	
+	docker stack deploy --with-registry-auth --prune --resolve-image never --compose-file ${COMPOSE_FILE} ${STACK_NAME}	
 	rm ${COMPOSE_FILE}
 endef
 
@@ -58,11 +76,9 @@ remove_infrastructure:
 #### Starting
 start_montreal:
 	#prtg
-
 	#json
-	$(call start_service,json,json.yml)
 	#web
-	#$(call start_service,web,web.yml)
+
 	#sensor
 	$(call start_service,sensor,sensor.yml)
 	#nsq
@@ -74,11 +90,9 @@ start_montreal:
 
 stop_montreal:
 	#prtg
-
 	#json
-	$(call stop_service,json)
 	#web
-	#$(call stop_service,web)
+
 	#sensor
 	$(call stop_service,sensor)
 	#nsq
@@ -96,7 +110,8 @@ adapt_hosts_file:
 	${LOCAL_IP} traefik.${DOMAIN}\n\
 	${LOCAL_IP} visualizer.${DOMAIN}\n\
 	${LOCAL_IP} portainer.${DOMAIN}\n\
-	${LOCAL_IP} nsqadmin.${DOMAIN}"\
+	${LOCAL_IP} nsqadmin.${DOMAIN}\n\
+	${LOCAL_IP} prtg.${DOMAIN}"\
 	| sudo tee --append /etc/hosts
 
 restore_hosts_file:

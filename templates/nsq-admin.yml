@@ -15,8 +15,6 @@ services:
     networks:
       traefik-net:
       nsq-net:
-#    ports:
-#      - "4171:4171"
     deploy:
       restart_policy:
         condition: on-failure
