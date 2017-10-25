@@ -3,38 +3,54 @@
 #
 #
 
+start_all: create_networks create_secrets create_infrastructure start_montreal
+stop_all: stop_montreal remove_infrastructure remove_secrets remove_networks
+
 ###############################################
 # Flash SD-Card								  #
 ###############################################
+# DEVICE - /dev/sdX
+# HYPRIOTOS - Location of hypriotos-rpi-v*.img
 USER:=cornelius
 GECOS:=cornelius
 HOME:=/home/cornelius
 TIMESERVER:=0.de.pool.ntp.org
 SWARM_TOKEN:=SWMTKN-1-3ug8esrjwyzzl814ayl9ncww7nkk853lg9t06tj8kbvfp7kbmi-9vb3azf3dloq9jdhaih4vhtzd
-SWARM_MANAGER_IP:=192.168.178.37:2377
+SWARM_LEADER_IP:=192.168.178.37:2377
 
 flash_sd:
-	curl -sLo ./flash https://raw.githubusercontent.com/hypriot/flash/master/Linux/flash
-	chmod +x ./flash
-	flash -u cloud-init.yml -d ${DEVICE} ${HYPRIOTOS}
-	rm -f ./flash
+	-sed -e "s|{USER}|${USER}|g" cloud-init.template.yml > cloud-init.yml
+	-sed -i -e "s|{GECOS}|${GECOS}|g" cloud-init.yml
+	-sed -i -e "s|{HOME}|${HOME}|g" cloud-init.yml
+	-sed -i -e "s|{TIMESERVER}|${TIMESERVER}|g" cloud-init.yml
+	-sed -i -e "s|{SWARM_TOKEN}|${SWARM_TOKEN}|g" cloud-init.yml
+	-sed -i -e "s|{SWARM_LEADER_IP}|${SWARM_LEADER_IP}|g" cloud-init.yml
+	-curl -sLo ./flash https://raw.githubusercontent.com/hypriot/flash/master/Linux/flash
+	-chmod +x ./flash
+	-./flash -u cloud-init.yml -d ${DEVICE} ${HYPRIOTOS}
+	-rm -f ./flash ./cloud-init.yml
 
 
+###############################################
+# Configuration                               #
+###############################################
 DOCKER_USER:=r3r57
 NAME:=montreal
 DOMAIN:=montreal.de
 IMAGE:=${DOCKER_USER}/${NAME}
 NETWORK_OPTIONS:=--opt encrypted --attachable --driver overlay
 
+###############################################
+# Utility Functions		              				  #
+###############################################
 define start_service
 	$(eval STACK_NAME=${1})
 	$(eval COMPOSE_FILE=${2})
 	#docker login -u ${DOCKER_USER} -p ${DOCKER_PASS} ${DOCKER_REPO}
 	sed -e "s|{DOMAIN}|${DOMAIN}|g" templates/${COMPOSE_FILE} > ${COMPOSE_FILE}
 	sed -i -e "s|{IMAGE}|${IMAGE}|g" ${COMPOSE_FILE}
-	sed -i -e "s|{IMAGE}|${IMAGE}|g" montreal.json
 	docker stack rm ${STACK_NAME} || true
-	docker stack deploy --with-registry-auth --prune --resolve-image never --compose-file ${COMPOSE_FILE} ${STACK_NAME}	
+	docker stack deploy --with-registry-auth --prune --resolve-image never --compose-file ${COMPOSE_FILE} ${STACK_NAME}
 	rm ${COMPOSE_FILE}
 endef
 
@@ -43,66 +59,79 @@ define stop_service
 	docker stack rm ${STACK_NAME}
 endef
 
-start_all: create_networks create_secrets create_infrastructure start_montreal
-stop_all: stop_montreal remove_infrastructure remove_secrets remove_networks
+###############################################
+# Start/Stop Environment	           				  #
+###############################################
+start_environment: create_networks create_secrets create_infrastructure
+stop_environment: remove_infrastructure remove_secrets remove_networks
 
-
-#### Preparation
 create_networks:
-	docker network create ${NETWORK_OPTIONS} traefik-net || true
-	docker network create ${NETWORK_OPTIONS} nsq-net || true
+	-docker network create ${NETWORK_OPTIONS} traefik-net
+	-docker network create ${NETWORK_OPTIONS} nsq-net
 
 create_secrets:
-	#docker secret rm PRTG_CREDENTIALS || true
-	#echo -n ${PRTG_CREDENTIALS} | docker secret create PRTG_CREDENTIALS - || true
-	docker secret rm montreal.json || true
-	docker secret create montreal.json montreal.json || true
+	-sed -i -e "s|{IMAGE}|${IMAGE}|g" montreal.json
+	-docker secret create montreal.json montreal.json
 
-create_infrastructure: 
+create_infrastructure:
 	$(call start_service,infrastructure,infrastructure.yml)
 
 remove_networks:
-	docker network rm traefik-net || true
-	docker network rm nsq-net || true
+	-docker network rm traefik-net
+	-docker network rm nsq-net
 
 remove_secrets:
-	#docker secret rm PRTG_CREDENTIALS
-	docker secret rm montreal.json || true
+	-docker secret rm montreal.json
 
 remove_infrastructure:
 	$(call stop_service,infrastructure)
 
 
-#### Starting
+###############################################
+# Start/Stop MonTreAL	    			          	  #
+###############################################
 start_montreal:
-	#prtg
-	#json
-	#web
-
-	#sensor
-	$(call start_service,sensor,sensor.yml)
 	#nsq
 	$(call start_service,nsq,nsq.yml)
 	#nsqcli
 	$(call start_service,nsq-cli,nsq-cli.yml)
 	#nsqadmin
 	$(call start_service,nsq-admin,nsq-admin.yml)
+	#memcached
+	$(call start_service,memcached,memcached.yml)
+	#raw memcache writer
+	$(call start_service,raw-memcache-writer,raw-memcache-writer.yml)
+
+	#prtg
+	#json
+	#web
+
+	#sensor
+	$(call start_service,sensor,sensor.yml)
 
 stop_montreal:
+	#nsq
+	$(call stop_service,nsq)
+	#nsqcli
+	$(call stop_service,nsq-cli)
+	#nsqadmin
+	$(call stop_service,nsq-admin)
+	#memcached
+	$(call stop_service,memcached)
+	#raw memcache writer
+	$(call stop_service,raw-memcache-writer)
+
 	#prtg
 	#json
 	#web
 
 	#sensor
 	$(call stop_service,sensor)
-	#nsq
-	$(call stop_service,nsq)
-	#nsqcli
-	$(call stop_service,nsq-cli)
-	#nsqadmin
-	$(call stop_service,nsq-admin,nsq-admin.yml)
 
-#### Testing
+
+###############################################
+# For Testing Purposes	            				  #
+###############################################
 adapt_hosts_file:
 	$(eval LOCAL_IP=$(shell hostname -i))
 	printf "\
