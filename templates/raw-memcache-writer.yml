@@ -1,0 +1,30 @@
+version: '3.3'
+
+networks:
+  nsq-net:
+    external:
+      name: nsq-net
+
+secrets:
+  montreal.json:
+    external: true
+
+services:
+  raw_memcache_writer:
+    image: "{IMAGE}:latest-amd64"
+    networks:
+      nsq-net:
+    environment:
+      CONFIG: /run/secrets/montreal.json
+      SERVICE: "raw_memcache_writer"
+    tty: true
+    secrets:
+      - montreal.json
+    deploy:
+      restart_policy:
+          condition: on-failure
+          delay: 5s
+          max_attempts: 3
+      placement:
+        constraints:
+          - node.role == manager
