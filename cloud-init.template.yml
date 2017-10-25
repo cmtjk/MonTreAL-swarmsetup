@@ -2,10 +2,10 @@ hostname: black-pearl
 manage_etc_hosts: true
 
 users:
-  - name: cornelius
-    gecos: "cornelius"
+  - name: {USER}
+    gecos: "{GECOS}"
     sudo: ALL=(ALL) NOPASSWD:ALL
-    home: /home/cornelius
+    home: {HOME}
     shell: /bin/bash
     groups: users,docker
     lock_passwd: true
@@ -25,14 +25,14 @@ runcmd:
   - systemctl restart sshd.service
 
   - sed -ie "s|Servers=.*||g" /etc/systemd/timesyncd.conf
-  - echo "Servers=0.de.pool.ntp.org" | sudo tee -a /etc/systemd/timesyncd.conf
+  - echo "Servers={TIMESERVER}" | sudo tee -a /etc/systemd/timesyncd.conf
   - systemctl restart systemd-timesyncd.service
 
   - sed -e "s|ExecStart=/usr/bin/dockerd.*|ExecStart=/usr/bin/dockerd|g" /lib/systemd/system/docker.service | sudo tee /etc/systemd/system/docker.service
   - systemctl daemon-reload
   - systemctl restart docker.service
 
-  - docker swarm join --token  SWMTKN-1-3ug8esrjwyzzl814ayl9ncww7nkk853lg9t06tj8kbvfp7kbmi-9vb3azf3dloq9jdhaih4vhtzd 192.168.178.37:2377
+  - docker swarm join --token  {SWARM_TOKEN} {SWARM_LEADER_IP}
 
 power_state:
   mode: reboot
@@ -49,7 +49,11 @@ write_files:
           "unix:///var/run/docker.sock"
         ]
       }
-  - path: /etc/location.info
+  - path: /etc/local_configuration.json
     content: |
-      LIBRARY=TB3
-      ROOM=UB/00.12
+      {
+        "hostname": "/etc/hostname",
+        "machine_id": "123456789",
+        "building": "L9",
+        "room": "Wohnzimmer"
+      }
