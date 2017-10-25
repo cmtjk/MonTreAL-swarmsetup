@@ -1,60 +1,66 @@
 {
-  "local": {
-    "label": "local-container",
-    "image": "r3r57/montreal:latest-arm",
-    "device": "/dev/ttyUSB0",
-    "network_name": "nsq-net",
-    "environment": {
-      "SERVICE": "sensor"
-    }
-  },
-  "metadata": {
-    "hostname_path": "/etc/pi-hostname",
-    "machine_id_path": "/etc/machine-id",
-    "location_info_path": "/etc/location.info"
-  },
   "sensors": {
+    "mock": {
+      "sensor_count": 5,
+      "temperature": 25.0,
+      "humidity": 62.0,
+      "interval": 50
+    },
     "ash2200": {
       "ids": "",
       "device": "/dev/ttyUSB0",
       "baudrate": "9600",
-      "timeout": "200"
-    },
-    "interval": 120
-  },
-  "nsq": {
-    "nsqd": {
-      "ip": "http://nsqd",
-      "name": "nsqd",
-      "port": "4151",
-      "timeout": 60
-    },
-    "nsqlookupd": {
-      "ip": "http://nsqlookupd",
-      "name": "nsqlookupd",
-      "port": "4161",
-      "interval": 300,
-      "timeout": 60
-    },
-    "topics": {
-      "data_topic": "sensors"
-    },
-    "writer":{
-      "timeout": 10,
-      "max_tries": 10
+      "timeout": 200
     }
   },
-  "memcached": {
-    "ip": "memcached",
-    "port": 11211,
-    "connect_timeout": 180,
-    "timeout": 180,
-    "key_expiration": 180,
-    "noreply_flag": true
+  "utilities": {
+    "logging": {
+      "level": "debug",
+      "file": "",
+      "format": "[%(asctime)s] %(levelname)-8s %(message)s"
+    },
+    "local": {
+      "label": "local-container",
+      "image": "r3r57/montreal:latest-arm",
+      "network_name": "nsq-net",
+      "device": "/dev/ttyUSB0",
+      "environment": {
+        "SERVICE": "sensor",
+        "TYPE": "ash2200"
+      }
+    },
+    "metadata": {
+      "local_configuration": "./local_configuration.json"
+    }
   },
-  "logging": {
-    "level": "debug",
-    "file": "",
-    "format": "[%(asctime)s] %(levelname)-8s %(message)s"
+  "interfaces": {
+    "nsq": {
+      "nsqd": {
+        "ip": "nsqd",
+        "port": "4151",
+        "timeout": 60
+      },
+      "nsqlookupd": {
+        "ip": "nsqlookupd",
+        "port": "4161",
+        "interval": 300,
+        "timeout": 60
+      },
+      "topics": {
+        "data_topic": "sensors"
+      },
+      "connection":{
+        "timeout": 2,
+        "max_tries": 10
+      }
+    },
+    "memcached": {
+      "ip": "memcached",
+      "port": 11211,
+      "connect_timeout": 180,
+      "timeout": 180,
+      "key_expiration": 180,
+      "noreply_flag": true
+    }
   }
 }
