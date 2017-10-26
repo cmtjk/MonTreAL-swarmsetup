@@ -68,6 +68,7 @@ stop_environment: remove_infrastructure remove_secrets remove_networks
 create_networks:
 	-docker network create ${NETWORK_OPTIONS} traefik-net
 	-docker network create ${NETWORK_OPTIONS} nsq-net
+	-docker network create ${NETWORK_OPTIONS} influxdb-net
 
 create_secrets:
 	-sed -i -e "s|{IMAGE}|${IMAGE}|g" montreal.json
@@ -79,6 +80,7 @@ create_infrastructure:
 remove_networks:
 	-docker network rm traefik-net
 	-docker network rm nsq-net
+	-docker network rm influxdb-net
 
 remove_secrets:
 	-docker secret rm montreal.json
@@ -99,12 +101,16 @@ start_montreal:
 	$(call start_service,nsq-admin,nsq-admin.yml)
 	#memcached
 	$(call start_service,memcached,memcached.yml)
+	#influxdb
+	$(call start_service,influxdb,influxdb.yml)
+	#chronograf
+	$(call start_service,chronograf,chronograf.yml)
+	#grafana
+	$(call start_service,grafana,grafana.yml)
 	#raw memcache writer
 	$(call start_service,raw-memcache-writer,raw-memcache-writer.yml)
-
-	#prtg
-	#json
-	#web
+	#influxdb writer
+	$(call start_service,influxdb-writer,influxdb-writer.yml)
 
 	#sensor
 	$(call start_service,sensor,sensor.yml)
@@ -118,12 +124,16 @@ stop_montreal:
 	$(call stop_service,nsq-admin)
 	#memcached
 	$(call stop_service,memcached)
+	#influxdb
+	$(call stop_service,influxdb)
+	#chornograf
+	$(call stop_service,chronograf)
+	#chornograf
+	$(call stop_service,grafana)
 	#raw memcache writer
 	$(call stop_service,raw-memcache-writer)
-
-	#prtg
-	#json
-	#web
+	#influxdb writer
+	$(call stop_service,influxdb-writer)
 
 	#sensor
 	$(call stop_service,sensor)
@@ -140,8 +150,9 @@ adapt_hosts_file:
 	${LOCAL_IP} visualizer.${DOMAIN}\n\
 	${LOCAL_IP} portainer.${DOMAIN}\n\
 	${LOCAL_IP} nsqadmin.${DOMAIN}\n\
-	${LOCAL_IP} prtg.${DOMAIN}"\
+	${LOCAL_IP} grafana.${DOMAIN}\n\
+	${LOCAL_IP} chronograf.${DOMAIN}"\
 	| sudo tee --append /etc/hosts
 
 restore_hosts_file:
-	sudo sed -i '/montreal.de/d' /etc/hosts
+	sudo sed -i '/${DOMAIN}/d' /etc/hosts
