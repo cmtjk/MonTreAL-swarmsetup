@@ -8,6 +8,8 @@ networks:
 services:
   influxdb:
     image: influxdb:latest
+    volumes:
+      - ./var/lib/influxdb:/var/lib/influxdb
     networks:
       influxdb-net:
     deploy:

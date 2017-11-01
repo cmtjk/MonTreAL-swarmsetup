@@ -12,6 +12,8 @@ services:
   chronograf:
     image: chronograf:latest
     command: chronograf --influxdb-url=http://influxdb:8086
+    volumes:
+      - ./var/lib/chronograf:/var/lib/chronograf
     networks:
       traefik-net:
       influxdb-net:

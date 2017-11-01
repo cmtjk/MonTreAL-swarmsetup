@@ -11,6 +11,8 @@ networks:
 services:
   grafana:
     image: grafana/grafana:latest
+    volumes:
+      - ./var/lib/grafana:/var/lib/grafana
     networks:
       traefik-net:
       influxdb-net:
