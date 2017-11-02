@@ -72,6 +72,7 @@ create_directories:
 create_networks:
 	-docker network create ${NETWORK_OPTIONS} traefik-net
 	-docker network create ${NETWORK_OPTIONS} nsq-net
+	-docker network create ${NETWORK_OPTIONS} dummy
 	-docker network create ${NETWORK_OPTIONS} influxdb-net
 
 create_secrets:
@@ -84,6 +85,7 @@ create_infrastructure:
 remove_networks:
 	-docker network rm traefik-net
 	-docker network rm nsq-net
+	-docker network rm dummy
 	-docker network rm influxdb-net
 
 remove_secrets:
