@@ -14,8 +14,6 @@ secrets:
 
 services:
   influxdb_writer:
-    depends_on:
-      - influxdb
     image: "{IMAGE}:latest-amd64"
     networks:
       influxdb-net:
