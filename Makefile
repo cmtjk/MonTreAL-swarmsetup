@@ -39,6 +39,7 @@ NAME:=montreal
 DOMAIN:=montreal.de
 IMAGE:=${DOCKER_USER}/${NAME}
 NETWORK_OPTIONS:=--opt encrypted --attachable --driver overlay
+DIRECTORIES=influxdb chronograf grafana
 
 ###############################################
 # Utility Functions		              				  #
@@ -64,6 +65,9 @@ endef
 ###############################################
 start_environment: create_networks create_secrets create_infrastructure
 stop_environment: remove_infrastructure remove_secrets remove_networks
+
+create_directories:
+	-mkdir -p var/lib && cd var/lib && mkdir ${DIRECTORIES} && cd ../..
 
 create_networks:
 	-docker network create ${NETWORK_OPTIONS} traefik-net
