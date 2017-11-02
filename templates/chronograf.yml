@@ -10,6 +10,8 @@ networks:
 
 services:
   chronograf:
+    depends_on:
+      - influxdb
     image: chronograf:latest
     command: chronograf --influxdb-url=http://influxdb:8086
     volumes:

@@ -11,6 +11,8 @@ secrets:
 
 services:
   raw_memcache_writer:
+    depends_on:
+      - memcached
     image: "{IMAGE}:latest-amd64"
     networks:
       nsq-net:

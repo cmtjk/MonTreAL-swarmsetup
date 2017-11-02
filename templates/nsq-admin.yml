@@ -10,6 +10,9 @@ networks:
 
 services:
   nsqadmin:
+    depends_on:
+      - nsq
+      - nsqlookupd
     image: nsqio/nsq:latest
     entrypoint: ["nsqadmin", "--lookupd-http-address=nsqlookupd:4161"]
     networks:

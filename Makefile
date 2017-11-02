@@ -63,7 +63,7 @@ endef
 ###############################################
 # Start/Stop Environment	           				  #
 ###############################################
-start_environment: create_networks create_secrets create_infrastructure
+start_environment: create_directories create_networks create_secrets create_infrastructure
 stop_environment: remove_infrastructure remove_secrets remove_networks
 
 create_directories:
@@ -81,6 +81,9 @@ create_secrets:
 
 create_infrastructure:
 	$(call start_service,infrastructure,infrastructure.yml)
+
+remove_directories:
+	-rm -rf var
 
 remove_networks:
 	-docker network rm traefik-net
