@@ -30,7 +30,7 @@
       }
     },
     "metadata": {
-      "local_configuration": "./local_configuration.json"
+      "local_configuration": "/etc/local_configuration.json"
     }
   },
   "interfaces": {
