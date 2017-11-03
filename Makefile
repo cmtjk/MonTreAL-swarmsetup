@@ -67,7 +67,7 @@ start_environment: create_directories create_networks create_secrets create_infr
 stop_environment: remove_infrastructure remove_secrets remove_networks
 
 create_directories:
-	-mkdir -p var/lib && cd var/lib && mkdir ${DIRECTORIES} && cd ../..
+	-mkdir -p data && cd data && mkdir ${DIRECTORIES} && cd ..
 
 create_networks:
 	-docker network create ${NETWORK_OPTIONS} traefik-net
@@ -83,7 +83,7 @@ create_infrastructure:
 	$(call start_service,infrastructure,infrastructure.yml)
 
 remove_directories:
-	-rm -rf var
+	-rm -rf data
 
 remove_networks:
 	-docker network rm traefik-net
