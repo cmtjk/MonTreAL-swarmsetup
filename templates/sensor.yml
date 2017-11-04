@@ -16,7 +16,7 @@ services:
       nsq-net:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
-      - /etc/local_configuration.json:/app/local_configuration.json:ro
+      - /etc/local_configuration.json:/etc/local_configuration.json:ro
       - /etc/hostname:/etc/hostname:ro
     environment:
       CONFIG: /run/secrets/montreal.json
