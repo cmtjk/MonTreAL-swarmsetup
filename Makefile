@@ -3,8 +3,8 @@
 #
 #
 
-start_all: create_networks create_secrets create_infrastructure start_montreal
-stop_all: stop_montreal remove_infrastructure remove_secrets remove_networks
+start_all: start_environment start_montreal
+stop_all: stop_montreal stop_environment
 
 ###############################################
 # Flash SD-Card								  #
@@ -47,17 +47,18 @@ DIRECTORIES=influxdb chronograf grafana
 define start_service
 	$(eval STACK_NAME=${1})
 	$(eval COMPOSE_FILE=${2})
-	#docker login -u ${DOCKER_USER} -p ${DOCKER_PASS} ${DOCKER_REPO}
-	sed -e "s|{DOMAIN}|${DOMAIN}|g" templates/${COMPOSE_FILE} > ${COMPOSE_FILE}
-	sed -i -e "s|{IMAGE}|${IMAGE}|g" ${COMPOSE_FILE}
-	docker stack rm ${STACK_NAME} || true
-	docker stack deploy --with-registry-auth --prune --resolve-image never --compose-file ${COMPOSE_FILE} ${STACK_NAME}
-	rm ${COMPOSE_FILE}
+	@#docker login -u ${DOCKER_USER} -p ${DOCKER_PASS} ${DOCKER_REPO}
+	@sed -e "s|{DOMAIN}|${DOMAIN}|g" templates/${COMPOSE_FILE} > ${COMPOSE_FILE}
+	@sed -i -e "s|{IMAGE}|${IMAGE}|g" ${COMPOSE_FILE}
+	@docker stack rm ${STACK_NAME} 2> /dev/null || true
+	@docker stack deploy --with-registry-auth --prune --resolve-image never --compose-file ${COMPOSE_FILE} ${STACK_NAME}
+	@rm ${COMPOSE_FILE}
 endef
 
 define stop_service
 	$(eval STACK_NAME=${1})
-	docker stack rm ${STACK_NAME}
+	@echo ${STACK_NAME}
+	@docker stack rm ${STACK_NAME} 2> /dev/null
 endef
 
 ###############################################
@@ -67,32 +68,36 @@ start_environment: create_directories create_networks create_secrets create_infr
 stop_environment: remove_infrastructure remove_secrets remove_networks
 
 create_directories:
-	-mkdir -p data && cd data && mkdir ${DIRECTORIES} && cd ..
+	-@mkdir data && cd data && mkdir ${DIRECTORIES} && cd ..
 
 create_networks:
-	-docker network create ${NETWORK_OPTIONS} traefik-net
-	-docker network create ${NETWORK_OPTIONS} nsq-net
-	-docker network create ${NETWORK_OPTIONS} dummy
-	-docker network create ${NETWORK_OPTIONS} influxdb-net
+	-@docker network create ${NETWORK_OPTIONS} traefik-net
+	-@docker network create ${NETWORK_OPTIONS} nsq-net
+	-@docker network create ${NETWORK_OPTIONS} dummy
+	-@docker network create ${NETWORK_OPTIONS} influxdb-net
+	-@docker network create ${NETWORK_OPTIONS} memcache-net
+	-@docker network ls -f scope=swarm
 
 create_secrets:
-	-sed -i -e "s|{IMAGE}|${IMAGE}|g" montreal.json
-	-docker secret create montreal.json montreal.json
+	-@sed -i -e "s|{IMAGE}|${IMAGE}|g" montreal.json
+	-@docker secret create montreal.json montreal.json
+	-@docker secret ls
 
 create_infrastructure:
 	$(call start_service,infrastructure,infrastructure.yml)
 
 remove_directories:
-	-rm -rf data
+	-@rm -rf data
 
 remove_networks:
-	-docker network rm traefik-net
-	-docker network rm nsq-net
-	-docker network rm dummy
-	-docker network rm influxdb-net
+	-@docker network rm traefik-net
+	-@docker network rm nsq-net
+	-@docker network rm dummy
+	-@docker network rm influxdb-net
+	-@docker network rm memcache-net
 
 remove_secrets:
-	-docker secret rm montreal.json
+	-@docker secret rm montreal.json
 
 remove_infrastructure:
 	$(call stop_service,infrastructure)
@@ -102,51 +107,69 @@ remove_infrastructure:
 # Start/Stop MonTreAL	    			          	  #
 ###############################################
 start_montreal:
-	#nsq
+	-@echo Starting independend services...
+	@#nsq
 	$(call start_service,nsq,nsq.yml)
-	#nsqcli
-	$(call start_service,nsq-cli,nsq-cli.yml)
-	#nsqadmin
-	$(call start_service,nsq-admin,nsq-admin.yml)
-	#memcached
+	@#memcached
 	$(call start_service,memcached,memcached.yml)
-	#influxdb
+	@#influxdb
 	$(call start_service,influxdb,influxdb.yml)
-	#chronograf
-	$(call start_service,chronograf,chronograf.yml)
-	#grafana
-	$(call start_service,grafana,grafana.yml)
-	#raw memcache writer
-	$(call start_service,raw-memcache-writer,raw-memcache-writer.yml)
-	#influxdb writer
-	$(call start_service,influxdb-writer,influxdb-writer.yml)
 
-	#sensor
+	-@echo Waiting 15 seconds for services to start...
+	-@sleep 15
+
+	-@echo Starting dependend services...
+	@#nsqcli
+	$(call start_service,nsq-cli,nsq-cli.yml)
+	@#nsqadmin
+	$(call start_service,nsq-admin,nsq-admin.yml)
+	@#chronograf
+	$(call start_service,chronograf,chronograf.yml)
+	@#grafana
+	$(call start_service,grafana,grafana.yml)
+	@#sensor data memcache writer
+	$(call start_service,sensor-data-memcache-writer,sensor-data-memcache-writer.yml)
+	@#influxdb writer
+	$(call start_service,influxdb-writer,influxdb-writer.yml)
+	@#rest
+	$(call start_service,rest,rest.yml)
+	@#sensor list memcache writer
+	$(call start_service,sensor-list-memcache-writer,sensor-list-memcache-writer.yml)
+
+	@#sensor
 	$(call start_service,sensor,sensor.yml)
 
 stop_montreal:
-	#nsq
-	$(call stop_service,nsq)
-	#nsqcli
-	$(call stop_service,nsq-cli)
-	#nsqadmin
-	$(call stop_service,nsq-admin)
-	#memcached
-	$(call stop_service,memcached)
-	#influxdb
-	$(call stop_service,influxdb)
-	#chornograf
-	$(call stop_service,chronograf)
-	#chornograf
-	$(call stop_service,grafana)
-	#raw memcache writer
-	$(call stop_service,raw-memcache-writer)
-	#influxdb writer
-	$(call stop_service,influxdb-writer)
-
-	#sensor
+	-@echo Shutting down dependend services...
+	@#sensor
 	$(call stop_service,sensor)
+	@#nsqcli
+	$(call stop_service,nsq-cli)
+	@#nsqadmin
+	$(call stop_service,nsq-admin)
+	@#chornograf
+	$(call stop_service,chronograf)
+	@#chornograf
+	$(call stop_service,grafana)
+	@#sensor data memcache writer
+	$(call stop_service,sensor-data-memcache-writer)
+	@#influxdb writer
+	$(call stop_service,influxdb-writer)
+	@#rest
+	$(call stop_service,rest)
+	@#sensor list memcache writer
+	$(call stop_service,sensor-list-memcache-writer)
 
+	-@echo Waiting 15 seconds for threads to finish...
+	-@sleep 15
+
+	-@echo Shutting down independend services...
+	@#memcached
+	$(call stop_service,memcached)
+	@#influxdb
+	$(call stop_service,influxdb)
+	@#nsq
+	$(call stop_service,nsq)
 
 ###############################################
 # For Testing Purposes	            				  #
@@ -160,7 +183,8 @@ adapt_hosts_file:
 	${LOCAL_IP} portainer.${DOMAIN}\n\
 	${LOCAL_IP} nsqadmin.${DOMAIN}\n\
 	${LOCAL_IP} grafana.${DOMAIN}\n\
-	${LOCAL_IP} chronograf.${DOMAIN}"\
+	${LOCAL_IP} chronograf.${DOMAIN}\n\
+	${LOCAL_IP} rest.${DOMAIN}"\
 	| sudo tee --append /etc/hosts
 
 restore_hosts_file:

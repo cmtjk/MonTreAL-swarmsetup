@@ -1,6 +1,9 @@
 version: '3.3'
 
 networks:
+  memcache-net:
+    external:
+      name: memcache-net
   nsq-net:
     external:
       name: nsq-net
@@ -10,13 +13,14 @@ secrets:
     external: true
 
 services:
-  raw_memcache_writer:
+  sensor_data_memcache_writer:
     image: "{IMAGE}:latest-amd64"
     networks:
+      memcache-net:
       nsq-net:
     environment:
       CONFIG: /run/secrets/montreal.json
-      SERVICE: "raw_memcache_writer"
+      SERVICE: "sensor_data_memcache_writer"
     tty: true
     secrets:
       - montreal.json
