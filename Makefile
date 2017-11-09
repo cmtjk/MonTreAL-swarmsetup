@@ -68,7 +68,7 @@ start_environment: create_directories create_networks create_secrets create_infr
 stop_environment: remove_infrastructure remove_secrets remove_networks
 
 create_directories:
-	-@mkdir -p data && cd data && mkdir -p ${DIRECTORIES} && cd ..
+	$(foreach dir, ${DIRECTORIES}, mkdir -pv data/${dir};)
 
 create_networks:
 	-@docker network create ${NETWORK_OPTIONS} traefik-net
