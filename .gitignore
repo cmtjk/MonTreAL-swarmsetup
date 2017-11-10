@@ -2,4 +2,4 @@
 *.zip
 deprecated/
 data/
-sdcard/
+hypriotos*
