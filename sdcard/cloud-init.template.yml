@@ -1,3 +1,4 @@
+#cloud-config
 hostname: black-pearl
 manage_etc_hosts: true
 
@@ -53,7 +54,7 @@ write_files:
     content: |
       {
         "hostname": "/etc/hostname",
-        "machine_id": "123456789",
+        "machine_id": "machine_id_2",
         "building": "L9",
         "room": "Wohnzimmer"
       }
