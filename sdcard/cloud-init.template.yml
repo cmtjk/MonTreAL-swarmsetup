@@ -54,7 +54,7 @@ write_files:
     content: |
       {
         "hostname": "/etc/hostname",
-        "machine_id": "{MACHINE_ID}",
+        "device_id": "{DEVICE_ID}",
         "building": "{BUILDING}",
         "room": "{ROOM}"
       }

@@ -21,7 +21,7 @@ HOME:=/home/montreal
 TIMESERVER:=0.de.pool.ntp.org
 SWARM_TOKEN:=SWMTKN-1-1k7oln5uiu72ugqmgggdvxgjz2hlwgy4ngwcqu6xe29v0a9p52-1w83k95uvzcoodsrakldzhowk
 SWARM_LEADER_IP:=192.168.178.25:2377
-MACHINE_ID:=L9WDev2
+DEVICE_ID:=L9WDev2
 BUILDING:=L9
 ROOM:=Wohnzimmer
 
@@ -33,7 +33,7 @@ flash_sd:
 	-sed -i -e "s|{TIMESERVER}|${TIMESERVER}|g" cloud-init.yml
 	-sed -i -e "s|{SWARM_TOKEN}|${SWARM_TOKEN}|g" cloud-init.yml
 	-sed -i -e "s|{SWARM_LEADER_IP}|${SWARM_LEADER_IP}|g" cloud-init.yml
-	-sed -i -e "s|{MACHINE_ID}|${MACHINE_ID}|g" cloud-init.yml
+	-sed -i -e "s|{DEVICE_ID}|${DEVICE_ID}|g" cloud-init.yml
 	-sed -i -e "s|{BUILDING}|${BUILDING}|g" cloud-init.yml
 	-sed -i -e "s|{ROOM}|${ROOM}|g" cloud-init.yml
 	-curl -sLo ./flash https://raw.githubusercontent.com/hypriot/flash/master/Linux/flash
