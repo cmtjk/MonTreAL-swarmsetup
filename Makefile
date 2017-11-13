@@ -11,20 +11,31 @@ stop_all: stop_montreal stop_environment
 ###############################################
 # DEVICE - /dev/sdX
 # HYPRIOTOS - Location of hypriotos-rpi-v*.img
-USER:=cornelius
-GECOS:=cornelius
-HOME:=/home/cornelius
+HYPRIOTOS=./sdcard/hypriotos-rpi-v1.5.1.img.zip
+DEVICE=/dev/sda
+
+HOSTNAME:=montreal-device-2
+USER:=montreal
+GECOS:=montreal
+HOME:=/home/montreal
 TIMESERVER:=0.de.pool.ntp.org
-SWARM_TOKEN:=SWMTKN-1-3ug8esrjwyzzl814ayl9ncww7nkk853lg9t06tj8kbvfp7kbmi-9vb3azf3dloq9jdhaih4vhtzd
-SWARM_LEADER_IP:=192.168.178.37:2377
+SWARM_TOKEN:=SWMTKN-1-1k7oln5uiu72ugqmgggdvxgjz2hlwgy4ngwcqu6xe29v0a9p52-1w83k95uvzcoodsrakldzhowk
+SWARM_LEADER_IP:=192.168.178.25:2377
+MACHINE_ID:=L9WDev2
+BUILDING:=L9
+ROOM:=Wohnzimmer
 
 flash_sd:
-	-sed -e "s|{USER}|${USER}|g" cloud-init.template.yml > cloud-init.yml
+	-sed -e "s|{USER}|${USER}|g" sdcard/cloud-init.template.yml > cloud-init.yml
 	-sed -i -e "s|{GECOS}|${GECOS}|g" cloud-init.yml
 	-sed -i -e "s|{HOME}|${HOME}|g" cloud-init.yml
+	-sed -i -e "s|{HOSTNAME}|${HOSTNAME}|g" cloud-init.yml
 	-sed -i -e "s|{TIMESERVER}|${TIMESERVER}|g" cloud-init.yml
 	-sed -i -e "s|{SWARM_TOKEN}|${SWARM_TOKEN}|g" cloud-init.yml
 	-sed -i -e "s|{SWARM_LEADER_IP}|${SWARM_LEADER_IP}|g" cloud-init.yml
+	-sed -i -e "s|{MACHINE_ID}|${MACHINE_ID}|g" cloud-init.yml
+	-sed -i -e "s|{BUILDING}|${BUILDING}|g" cloud-init.yml
+	-sed -i -e "s|{ROOM}|${ROOM}|g" cloud-init.yml
 	-curl -sLo ./flash https://raw.githubusercontent.com/hypriot/flash/master/Linux/flash
 	-chmod +x ./flash
 	-./flash -u cloud-init.yml -d ${DEVICE} ${HYPRIOTOS}
@@ -39,7 +50,7 @@ NAME:=montreal
 DOMAIN:=montreal.de
 IMAGE:=${DOCKER_USER}/${NAME}
 NETWORK_OPTIONS:=--opt encrypted --attachable --driver overlay
-DIRECTORIES=influxdb chronograf grafana
+DIRECTORIES=influxdb chronograf grafana prometheus
 
 ###############################################
 # Utility Functions		              				  #
@@ -69,18 +80,22 @@ stop_environment: remove_infrastructure remove_secrets remove_networks
 
 create_directories:
 	$(foreach dir, ${DIRECTORIES}, mkdir -pv data/${dir};)
+	-@echo Changing permissions... this might be a potential issue!
+	-chmod 757 data/prometheus
 
 create_networks:
 	-@docker network create ${NETWORK_OPTIONS} traefik-net
 	-@docker network create ${NETWORK_OPTIONS} nsq-net
 	-@docker network create ${NETWORK_OPTIONS} dummy
 	-@docker network create ${NETWORK_OPTIONS} influxdb-net
+	-@docker network create ${NETWORK_OPTIONS} prometheus-net
 	-@docker network create ${NETWORK_OPTIONS} memcache-net
 	-@docker network ls -f scope=swarm
 
 create_secrets:
-	-@sed -i -e "s|{IMAGE}|${IMAGE}|g" montreal.json
-	-@docker secret create montreal.json montreal.json
+	-@sed -i -e "s|{IMAGE}|${IMAGE}|g" config/montreal.json
+	-@docker secret create montreal.json config/montreal.json
+	-@docker secret create prometheus.yml config/prometheus/prometheus.yml
 	-@docker secret ls
 
 create_infrastructure:
@@ -94,10 +109,12 @@ remove_networks:
 	-@docker network rm nsq-net
 	-@docker network rm dummy
 	-@docker network rm influxdb-net
+	-@docker network rm prometheus-net
 	-@docker network rm memcache-net
 
 remove_secrets:
 	-@docker secret rm montreal.json
+	-@docker secret rm prometheus.yml
 
 remove_infrastructure:
 	$(call stop_service,infrastructure)
@@ -114,6 +131,8 @@ start_montreal:
 	$(call start_service,memcached,memcached.yml)
 	@#influxdb
 	$(call start_service,influxdb,influxdb.yml)
+	@#prometheus
+	$(call start_service,prometheus,prometheus.yml)
 
 	-@echo Waiting 15 seconds for services to start...
 	-@sleep 15
@@ -131,6 +150,8 @@ start_montreal:
 	$(call start_service,sensor-data-memcache-writer,sensor-data-memcache-writer.yml)
 	@#influxdb writer
 	$(call start_service,influxdb-writer,influxdb-writer.yml)
+	@#prometheus writer
+	$(call start_service,prometheus-writer,prometheus-writer.yml)
 	@#rest
 	$(call start_service,rest,rest.yml)
 	@#sensor list memcache writer
@@ -155,6 +176,8 @@ stop_montreal:
 	$(call stop_service,sensor-data-memcache-writer)
 	@#influxdb writer
 	$(call stop_service,influxdb-writer)
+	@#prometheus writer
+	$(call stop_service,prometheus-writer)
 	@#rest
 	$(call stop_service,rest)
 	@#sensor list memcache writer
@@ -168,6 +191,8 @@ stop_montreal:
 	$(call stop_service,memcached)
 	@#influxdb
 	$(call stop_service,influxdb)
+	@#prometheus
+	$(call stop_service,prometheus)
 	@#nsq
 	$(call stop_service,nsq)
 
@@ -183,6 +208,7 @@ adapt_hosts_file:
 	${LOCAL_IP} portainer.${DOMAIN}\n\
 	${LOCAL_IP} nsqadmin.${DOMAIN}\n\
 	${LOCAL_IP} grafana.${DOMAIN}\n\
+	${LOCAL_IP} prometheus.${DOMAIN}\n\
 	${LOCAL_IP} chronograf.${DOMAIN}\n\
 	${LOCAL_IP} rest.${DOMAIN}"\
 	| sudo tee --append /etc/hosts
