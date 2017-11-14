@@ -14,7 +14,7 @@ secrets:
 
 services:
   sensor_data_memcache_writer:
-    image: "{IMAGE}:latest-amd64"
+    image: "{IMAGE}-amd64"
     networks:
       memcache-net:
       nsq-net:
