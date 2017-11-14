@@ -32,7 +32,7 @@
     },
     "local": {
       "label": "local-container",
-      "image": "r3r57/montreal:latest-arm",
+      "image": "{IMAGE}-arm",
       "network_name": "nsq-net",
       "device": "/dev/ttyUSB0",
       "environment": {

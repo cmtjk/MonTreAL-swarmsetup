@@ -94,7 +94,7 @@ create_networks:
 	-@docker network ls -f scope=swarm
 
 create_secrets:
-	-@sed -i -e "s|{IMAGE}|${IMAGE}|g" config/montreal.json
+	-@sed -i -e "s|{IMAGE}|${IMAGE}|g" config/montreal.template.json > config/montreal.json
 	-@docker secret create montreal.json config/montreal.json
 	-@docker secret create prometheus.yml config/prometheus/prometheus.yml
 	-@docker secret ls
