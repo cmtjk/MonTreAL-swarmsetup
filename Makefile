@@ -158,13 +158,13 @@ start_montreal:
 	@#sensor list memcache writer
 	$(call start_service,sensor-list-memcache-writer,sensor-list-memcache-writer.yml)
 
-	@#sensor
-	$(call start_service,sensor,sensor.yml)
+	@#local manager
+	$(call start_service,local_manager,local-manager.yml)
 
 stop_montreal:
 	-@echo Shutting down dependend services...
-	@#sensor
-	$(call stop_service,sensor)
+	@#local manager
+	$(call stop_service,local_manager)
 	@#nsqcli
 	$(call stop_service,nsq-cli)
 	@#nsqadmin
