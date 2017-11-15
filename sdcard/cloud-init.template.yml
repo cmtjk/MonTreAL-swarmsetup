@@ -51,18 +51,18 @@ write_files:
         ]
       }
   - path: /etc/montreal/local_configuration.json
-  content: |
-    {
-      "meta": {
-        "architecture": "{ARCHITECTURE}",
-        "device_id": "{DEVICE_ID}"
-      },
-      "location": {
-        "building": "{BUILDING}",
-        "room": "{ROOM}"
-      },
-      "sensors": {
-        "service": "{SERVICE}",
-        "type": "{TYPE}"
+    content: |
+      {
+        "meta": {
+          "architecture": "{ARCHITECTURE}",
+          "device_id": "{DEVICE_ID}"
+        },
+        "location": {
+          "building": "{BUILDING}",
+          "room": "{ROOM}"
+        },
+        "sensors": {
+          "service": "{SERVICE}",
+          "type": "{TYPE}"
+        }
       }
-    }
