@@ -33,7 +33,7 @@
     "local_manager": {
       "local_configuration": "/etc/montreal/local_configuration.json",
       "label": "montreal-sensor-container",
-      "image": "montreal:develop",
+      "image": "r3r57/montreal:develop",
       "network_name": "nsq-net",
       "global_sensors": {
         "ash2200": {
