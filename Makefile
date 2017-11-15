@@ -24,6 +24,8 @@ SWARM_LEADER_IP:=192.168.178.25:2377
 DEVICE_ID:=L9WDev2
 BUILDING:=L9
 ROOM:=Wohnzimmer
+SERVICE:=""
+TYPE:=""
 
 flash_sd:
 	-sed -e "s|{USER}|${USER}|g" sdcard/cloud-init.template.yml > cloud-init.yml
@@ -36,6 +38,8 @@ flash_sd:
 	-sed -i -e "s|{DEVICE_ID}|${DEVICE_ID}|g" cloud-init.yml
 	-sed -i -e "s|{BUILDING}|${BUILDING}|g" cloud-init.yml
 	-sed -i -e "s|{ROOM}|${ROOM}|g" cloud-init.yml
+	-sed -i -e "s|{SERVICE}|${SERVICE}|g" cloud-init.yml
+	-sed -i -e "s|{TYPE}|${TYPE}|g" cloud-init.yml
 	-curl -sLo ./flash https://raw.githubusercontent.com/hypriot/flash/master/Linux/flash
 	-chmod +x ./flash
 	-./flash -u cloud-init.yml -d ${DEVICE} ${HYPRIOTOS}
@@ -47,7 +51,7 @@ flash_sd:
 ###############################################
 DOCKER_USER:=r3r57
 NAME:=montreal
-VERSION:=latest
+VERSION:=develop
 DOMAIN:=montreal.de
 IMAGE:=${DOCKER_USER}/${NAME}:${VERSION}
 NETWORK_OPTIONS:=--opt encrypted --attachable --driver overlay
