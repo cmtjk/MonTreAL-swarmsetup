@@ -25,8 +25,6 @@ DEVICE_ID:=L9WDev2
 BUILDING:=L9
 ROOM:=Wohnzimmer
 ARCHITECTURE:="arm"
-SERVICE:=""
-TYPE:=""
 
 flash_sd:
 	-sed -e "s|{USER}|${USER}|g" sdcard/cloud-init.template.yml > cloud-init.yml
@@ -40,8 +38,6 @@ flash_sd:
 	-sed -i -e "s|{BUILDING}|${BUILDING}|g" cloud-init.yml
 	-sed -i -e "s|{ROOM}|${ROOM}|g" cloud-init.yml
 	-sed -i -e "s|{ARCHITECTURE}|${ARCHITECTURE}|g" cloud-init.yml
-	-sed -i -e "s|{SERVICE}|${SERVICE}|g" cloud-init.yml
-	-sed -i -e "s|{TYPE}|${TYPE}|g" cloud-init.yml
 	-curl -sLo ./flash https://raw.githubusercontent.com/hypriot/flash/master/Linux/flash
 	-chmod +x ./flash
 	-./flash -u cloud-init.yml -d ${DEVICE} ${HYPRIOTOS}
@@ -100,7 +96,6 @@ create_networks:
 	-@docker network ls -f scope=swarm
 
 create_secrets:
-	-@sed -e "s|{IMAGE}|${IMAGE}|g" config/montreal.template.json > config/montreal.json
 	-@docker secret create montreal.json config/montreal.json
 	-@docker secret create prometheus.yml config/prometheus/prometheus.yml
 	-@docker secret ls
