@@ -61,8 +61,5 @@ write_files:
           "building": "{BUILDING}",
           "room": "{ROOM}"
         },
-        "sensors": {
-          "service": "{SERVICE}",
-          "type": "{TYPE}"
-        }
+        "sensors": {}
       }
