@@ -10,7 +10,7 @@ secrets:
     external: true
 
 services:
-  sensors:
+  local_manager:
     image: "{IMAGE}-arm"
     networks:
       nsq-net:
