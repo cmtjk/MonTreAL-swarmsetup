@@ -50,11 +50,19 @@ write_files:
           "unix:///var/run/docker.sock"
         ]
       }
-  - path: /etc/local_configuration.json
-    content: |
-      {
-        "hostname": "/etc/hostname",
-        "device_id": "{DEVICE_ID}",
+  - path: /etc/montreal/local_configuration.json
+  content: |
+    {
+      "meta": {
+        "architecture": "{ARCHITECTURE}",
+        "device_id": "{DEVICE_ID}"
+      },
+      "location": {
         "building": "{BUILDING}",
         "room": "{ROOM}"
+      },
+      "sensors": {
+        "service": "{SERVICE}",
+        "type": "{TYPE}"
       }
+    }

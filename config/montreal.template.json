@@ -30,18 +30,19 @@
         }
       }
     },
-    "local": {
-      "label": "local-container",
-      "image": "{IMAGE}-arm",
+    "local_manager": {
+      "local_configuration": "/etc/montreal/local_configuration.json",
+      "label": "montreal-sensor-container",
+      "image": "montreal:develop",
       "network_name": "nsq-net",
-      "device": "/dev/ttyUSB0",
-      "environment": {
-        "SERVICE": "sensor",
-        "TYPE": "ash2200"
+      "global_sensors": {
+        "ash2200": {
+          "service": "temperature_humidity_sensor",
+          "type": "ash2200",
+          "devices": ["/dev/ttyUSB0"],
+          "command": ""
+        }
       }
-    },
-    "metadata": {
-      "local_configuration": "/etc/local_configuration.json"
     },
     "sensorlist": {
       "interval": 300
