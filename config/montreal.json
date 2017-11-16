@@ -1,17 +1,5 @@
 {
   "sensors": {
-    "mock": {
-      "sensor_count": 5,
-      "temperature": 25.0,
-      "humidity": 62.0,
-      "interval": 60
-    },
-    "ash2200": {
-      "ids": "",
-      "device": "/dev/ttyUSB0",
-      "baudrate": "9600",
-      "timeout": 200
-    }
   },
   "utilities": {
     "logging": {
@@ -40,7 +28,12 @@
           "service": "temperature_humidity_sensor",
           "type": "ash2200",
           "devices": ["/dev/ttyUSB0"],
-          "command": ""
+          "command": "",
+          "configuration": {
+            "device": "/dev/ttyUSB0",
+            "baudrate": "9600",
+            "timeout": 200
+          }
         }
       }
     },

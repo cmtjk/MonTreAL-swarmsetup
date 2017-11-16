@@ -61,5 +61,5 @@ write_files:
           "building": "{BUILDING}",
           "room": "{ROOM}"
         },
-        "sensors": {}
+        "local_sensors": {}
       }
