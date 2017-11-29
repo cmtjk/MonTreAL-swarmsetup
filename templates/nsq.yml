@@ -20,32 +20,32 @@ services:
         constraints:
           - node.role == manager
 
-  # nsqd:
-  #   image: nsqio/nsq:latest
-  #   entrypoint: ["nsqd", "--lookupd-tcp-address=nsqlookupd:4160"]
-  #   networks:
-  #     nsq-net:
-  #   deploy:
-  #     restart_policy:
-  #       condition: on-failure
-  #       delay: 5s
-  #       max_attempts: 3
-  #     placement:
-  #       constraints:
-  #         - node.role == manager
-
   nsqd:
-    image: r3r57/nsq-for-arm:v1.0.0-compat
+    image: nsqio/nsq:latest
     entrypoint: ["nsqd", "--lookupd-tcp-address=nsqlookupd:4160"]
     networks:
       nsq-net:
     deploy:
-      mode: global
       restart_policy:
         condition: on-failure
         delay: 5s
         max_attempts: 3
       placement:
         constraints:
-          - node.role == worker
-          - node.labels.type == sensor_device
+          - node.role == manager
+
+  # nsqd:
+  #   image: r3r57/nsq-for-arm:v1.0.0-compat
+  #   entrypoint: ["nsqd", "--lookupd-tcp-address=nsqlookupd:4160"]
+  #   networks:
+  #     nsq-net:
+  #   deploy:
+  #     mode: global
+  #     restart_policy:
+  #       condition: on-failure
+  #       delay: 5s
+  #       max_attempts: 3
+  #     placement:
+  #       constraints:
+  #         - node.role == worker
+  #         - node.labels.type == sensor_device
