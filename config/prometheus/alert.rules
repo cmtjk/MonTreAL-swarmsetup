@@ -1,0 +1,10 @@
+groups:
+- name: sensor_devices
+  rules:
+  - alert: NewSensorDevice
+    expr: montreal:montreal_device_2:L9WDev2:1{name="temperature"} > 24
+    for: 1s
+    labels:
+      severity: page
+    annotations:
+      summary: High request latency

@@ -1,0 +1,16 @@
+global:
+  smtp_smarthost: 'localhost:25'
+  smtp_from: 'alertmanager@example.org'
+
+route:
+  receiver: "alerta"
+  group_by: ['alertname']
+  group_wait:      30s
+  group_interval:  5m
+  repeat_interval: 2h
+
+receivers:
+- name: "alerta"
+  webhook_configs:
+  - url: 'http://alerta/api/webhooks/prometheus'
+# send_resolved: true

@@ -55,6 +55,8 @@ create_networks:
 create_secrets:
 	-@docker secret create montreal.json config/montreal.json
 	-@docker secret create prometheus.yml config/prometheus/prometheus.yml
+	-@docker secret create alert.rules config/prometheus/alert.rules
+	-@docker secret create alertmanager.yml config/alertmanager/alertmanager.yml
 	-@docker secret ls
 
 create_infrastructure:
@@ -74,6 +76,8 @@ remove_networks:
 remove_secrets:
 	-@docker secret rm montreal.json
 	-@docker secret rm prometheus.yml
+	-@docker secret rm alert.rules
+	-@docker secret rm alertmanager.yml
 
 remove_infrastructure:
 	$(call stop_service,infrastructure)
@@ -92,6 +96,8 @@ start_montreal:
 	$(call start_service,influxdb,influxdb.yml)
 	@#prometheus
 	$(call start_service,prometheus,prometheus.yml)
+	@#alertmanager
+	$(call start_service,alertmanager,alertmanager.yml)
 
 	-@echo Waiting 15 seconds for services to start...
 	-@sleep 15
@@ -152,6 +158,8 @@ stop_montreal:
 	$(call stop_service,influxdb)
 	@#prometheus
 	$(call stop_service,prometheus)
+	@#alertmanager
+	$(call stop_service,alertmanager)
 	@#nsq
 	$(call stop_service,nsq)
 
@@ -169,6 +177,7 @@ adapt_hosts_file:
 	${LOCAL_IP} grafana.${DOMAIN}\n\
 	${LOCAL_IP} prometheus.${DOMAIN}\n\
 	${LOCAL_IP} chronograf.${DOMAIN}\n\
+	${LOCAL_IP} alertmanager.${DOMAIN}\n\
 	${LOCAL_IP} rest.${DOMAIN}"\
 	| sudo tee --append /etc/hosts
 
