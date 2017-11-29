@@ -55,6 +55,7 @@ create_networks:
 create_secrets:
 	-@docker secret create montreal.json config/montreal.json
 	-@docker secret create prometheus.yml config/prometheus/prometheus.yml
+	-@docker secret create grafana.ini config/grafana/grafana.ini
 	-@docker secret ls
 
 create_infrastructure:
@@ -74,6 +75,7 @@ remove_networks:
 remove_secrets:
 	-@docker secret rm montreal.json
 	-@docker secret rm prometheus.yml
+	-@docker secret rm grafana.ini
 
 remove_infrastructure:
 	$(call stop_service,infrastructure)

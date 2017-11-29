@@ -8,11 +8,22 @@ networks:
     external:
       name: traefik-net
 
+secrets:
+  grafana.ini:
+    external: true
+
 services:
   grafana:
     image: grafana/grafana:latest
     volumes:
       - ./data/grafana:/var/lib/grafana
+    # TODO: https://github.com/grafana/grafana-docker/issues/51
+    # secrets:
+    #   - source: grafana.ini
+    #     target: /etc/grafana/grafana.ini
+    # Alternative:
+    env_file:
+      - config/grafana/grafana.env
     networks:
       traefik-net:
       influxdb-net:
