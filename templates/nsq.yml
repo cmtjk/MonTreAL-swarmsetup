@@ -26,6 +26,7 @@ services:
     networks:
       nsq-net:
     deploy:
+      mode: global
       restart_policy:
         condition: on-failure
         delay: 5s
