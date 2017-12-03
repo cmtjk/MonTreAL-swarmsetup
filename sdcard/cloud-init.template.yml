@@ -18,7 +18,6 @@ packages:
   - ca-certificates
   - curl
   - tmux
-  - jq
   - vim
 
 runcmd:

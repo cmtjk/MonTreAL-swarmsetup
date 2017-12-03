@@ -1,4 +1,4 @@
-HYPRIOTOS=./hypriotos-rpi-v1.5.1.img.zip
+HYPRIOTOS=./hypriotos-rpi-v1.7.1.img.zip
 DEVICE=/dev/sda
 
 HOSTNAME:=montreal-device-2
@@ -11,10 +11,10 @@ SWARM_LEADER_IP:=192.168.178.25:2377
 DEVICE_ID:=L9WDev2
 BUILDING:=L9
 ROOM:=Wohnzimmer
-ARCHITECTURE:="arm"
+ARCHITECTURE:=arm
 
 flash_sd:
-	-sed -e "s|{USER}|${USER}|g" sdcard/cloud-init.template.yml > cloud-init.yml
+	-sed -e "s|{USER}|${USER}|g" cloud-init.template.yml > cloud-init.yml
 	-sed -i -e "s|{GECOS}|${GECOS}|g" cloud-init.yml
 	-sed -i -e "s|{HOME}|${HOME}|g" cloud-init.yml
 	-sed -i -e "s|{HOSTNAME}|${HOSTNAME}|g" cloud-init.yml
@@ -25,6 +25,7 @@ flash_sd:
 	-sed -i -e "s|{BUILDING}|${BUILDING}|g" cloud-init.yml
 	-sed -i -e "s|{ROOM}|${ROOM}|g" cloud-init.yml
 	-sed -i -e "s|{ARCHITECTURE}|${ARCHITECTURE}|g" cloud-init.yml
+	-cat cloud-init.yml
 	-curl -sLo ./flash https://raw.githubusercontent.com/hypriot/flash/master/Linux/flash
 	-chmod +x ./flash
 	-./flash -u cloud-init.yml -d ${DEVICE} ${HYPRIOTOS}
