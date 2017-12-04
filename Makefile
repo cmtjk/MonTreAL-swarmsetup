@@ -6,14 +6,14 @@ stop_all: stop_montreal stop_environment
 ###############################################
 DOCKER_USER:=r3r57
 NAME:=montreal
-VERSION:=develop
+VERSION:=latest-multiarch
 DOMAIN:=montreal.de
 IMAGE:=${DOCKER_USER}/${NAME}:${VERSION}
 NETWORK_OPTIONS:=--opt encrypted --attachable --driver overlay
 DIRECTORIES=influxdb chronograf grafana prometheus
 
 ###############################################
-# Utility Functions		              				  #
+# Utility Functions                           #
 ###############################################
 define start_service
 	$(eval STACK_NAME=${1})
@@ -33,7 +33,7 @@ define stop_service
 endef
 
 ###############################################
-# Start/Stop Environment	           				  #
+# Start/Stop Environment                      #
 ###############################################
 start_environment: create_directories create_networks create_secrets create_infrastructure
 stop_environment: remove_infrastructure remove_secrets remove_networks
@@ -82,7 +82,7 @@ remove_infrastructure:
 
 
 ###############################################
-# Start/Stop MonTreAL	    			          	  #
+# Start/Stop MonTreAL                         #
 ###############################################
 start_montreal:
 	-@echo Starting independend services...
@@ -158,7 +158,7 @@ stop_montreal:
 	$(call stop_service,nsq)
 
 ###############################################
-# For Testing Purposes	            				  #
+# For Testing Purposes                        #
 ###############################################
 adapt_hosts_file:
 	$(eval LOCAL_IP=$(shell hostname -i))

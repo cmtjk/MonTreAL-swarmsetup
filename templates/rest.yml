@@ -14,7 +14,7 @@ secrets:
 
 services:
   rest:
-    image: "{IMAGE}-amd64"
+    image: "{IMAGE}"
     networks:
       traefik-net:
       memcache-net:

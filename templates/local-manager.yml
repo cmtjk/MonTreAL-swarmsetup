@@ -11,7 +11,7 @@ secrets:
 
 services:
   local_manager:
-    image: "{IMAGE}-arm"
+    image: "{IMAGE}"
     networks:
       nsq-net:
     volumes:
