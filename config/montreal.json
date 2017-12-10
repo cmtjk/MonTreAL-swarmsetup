@@ -77,7 +77,8 @@
       "measurements": "Temperature & Humidity"
     },
     "prometheus": {
-      "port": 8971
+      "port": 8971,
+      "interval": 300
     }
   }
 }
