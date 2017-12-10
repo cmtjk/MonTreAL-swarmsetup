@@ -10,7 +10,7 @@ VERSION:=latest-multiarch
 DOMAIN:=montreal.de
 IMAGE:=${DOCKER_USER}/${NAME}:${VERSION}
 NETWORK_OPTIONS:=--opt encrypted --attachable --driver overlay
-DIRECTORIES=influxdb chronograf grafana prometheus
+DIRECTORIES=influxdb chronograf grafana prometheus portainer
 
 ###############################################
 # Utility Functions                           #

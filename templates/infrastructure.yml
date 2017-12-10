@@ -12,7 +12,7 @@ services:
       - "80:80"
       - "443:443"
       - "8080:8080"
-    command: --web --docker --docker.swarmmode=true --docker.watch=true --docker.domain={DOMAIN} -l DEBUG 
+    command: --web --docker --docker.swarmmode=true --docker.watch=true --docker.domain={DOMAIN} -l DEBUG
     volumes:
       - "/var/run/docker.sock:/var/run/docker.sock"
       - "/dev/null:/traefik.toml"
@@ -53,11 +53,12 @@ services:
             trafik.frontend.passHostHeader: "true"
             traefik.port: 8080
             traefik.frontend.rule: "Host:visualizer.{DOMAIN}"
-            
+
   portainer:
       image: portainer/portainer
       volumes:
           - "/var/run/docker.sock:/var/run/docker.sock"
+          - "./data/prometheus:/data"
       command: -H unix:///var/run/docker.sock
       networks:
           - traefik-net
