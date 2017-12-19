@@ -11,7 +11,7 @@
         "graylog": {
           "enabled": false,
           "type": "tcp",
-          "host": "192.168.178.25",
+          "host": "",
           "port": 12202
         }
       }
@@ -26,7 +26,7 @@
         "ash2200": {
           "service": "temperature_humidity_sensor",
           "type": "ash2200",
-          "image": "r3r57/montreal:develop-multiarch",
+          "image": "r3r57/montreal:latest-multiarch",
           "devices": ["/dev/ttyUSB0"],
           "command": "",
           "configuration": {

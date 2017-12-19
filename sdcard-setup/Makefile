@@ -6,6 +6,7 @@ USER:=montreal
 GECOS:=montreal
 HOME:=/home/montreal
 TIMESERVER:=0.de.pool.ntp.org
+IMAGE:=r3r57/montreal:latest-multiarch
 SWARM_TOKEN:=SWMTKN-1-1k7oln5uiu72ugqmgggdvxgjz2hlwgy4ngwcqu6xe29v0a9p52-1w83k95uvzcoodsrakldzhowk
 SWARM_LEADER_IP:=192.168.178.25:2377
 DEVICE_ID:=L9WDev2
@@ -19,6 +20,7 @@ flash_sd:
 	-sed -i -e "s|{HOME}|${HOME}|g" cloud-init.yml
 	-sed -i -e "s|{HOSTNAME}|${HOSTNAME}|g" cloud-init.yml
 	-sed -i -e "s|{TIMESERVER}|${TIMESERVER}|g" cloud-init.yml
+	-sed -i -e "s|{IMAGE}|${IMAGE}|g" cloud-init.yml
 	-sed -i -e "s|{SWARM_TOKEN}|${SWARM_TOKEN}|g" cloud-init.yml
 	-sed -i -e "s|{SWARM_LEADER_IP}|${SWARM_LEADER_IP}|g" cloud-init.yml
 	-sed -i -e "s|{DEVICE_ID}|${DEVICE_ID}|g" cloud-init.yml

@@ -11,7 +11,8 @@ users:
     groups: users,docker
     lock_passwd: true
     ssh-authorized-keys:
-        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDS/bzCrcU+Yoq4UrtJguhOyHi+zeNhRap17VghVGljXiyvvxyGiXtBb8Cg3LH0NFmptamc8Xqcw4B9qM/VqZX6ZYuKaB4l0fXmix5cL5NYUscd4hLwLWUN6JrsCmFFOhpAoq6s0GYiRF21fm8F+IItlQKsjGS7SwBdj14DoWsTbh1NEjgqqeSncOjBzwnjziVB/Pf8EK4eM7yPPR/xRFoaqVgI8qlnIzzrbLlJZuRXofQw8zm5BHewlzoTOdc8h7oYDWYUtadkEGyDpNZ37qEOjgxQYGK8VX3HzAZQSSa1ep9LavkGtMzmpTG9QS385tuH5P6F8ag+RDPNTLumUir9 cornelius@manjaro-t470
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCz/JVKdb+3yh0RNm0QX4CH/YWQep+uZmKmszjVjWuI7Kam9dZsrzqG48tafKTCNLTOOWIb6lnhY9Ud23w8OAuo8Tp027mLvoimhfSZ4FRAlbM65ItgnP0RVa0nqzy6YX/cgA56Sx72FvMfl+/FuqcVhipvJC8SrhTrJm74eY5AhL2fvKvBlOe2nxUOkV0p+oPu5cNu6Wwhh4teEKp/prGAGqw2mVusYHW01oWbE/FyMS2Q6gW/N+DuVD38tZu01hr0fNNky7zpdQfxxPfttv+dsvwa7O7TpYBiLspI0R54+aS2ABA7brN2/7ZolptQ5Aq3uMj5jF5TjyZf9RXCo0OkmlYz4fxGmodsATSQSxAL9qvgwBxGWEkLt/+3e4VCxPj++hp4gAqvJWApEUN0iskuUUjRiAFBPWWCHSiH5UNBcF1XD9bYBJNHZtuc6EgQj5DgiJ53X2yzhnjw+13EBiUyAdK9SLIGe9WYzVoh3OToJhp8LMuMqujRVxFCl73ukZ12mYyFFMuqqX1qdS8ql/dpyOekRrb8YHEDUvchP6Cz/P/7/5a6LbCi8O45tKQ9oYVfAKU3tVvEZDJas6ecwDIxzljIiym7mj7FIfwcaWx+dQVnqgX+RrAnf4myELtUGEfp3yip5VmSm91wBtjjjdlhjXJTGU4jeFEeK4gQusOOEQ== cardno:000606948162
+
 
 package_upgrade: false
 packages:
@@ -31,6 +32,8 @@ runcmd:
   - sed -e "s|ExecStart=/usr/bin/dockerd.*|ExecStart=/usr/bin/dockerd|g" /lib/systemd/system/docker.service | sudo tee /etc/systemd/system/docker.service
   - systemctl daemon-reload
   - systemctl restart docker.service
+
+  - docker pull {IMAGE}
 
   - docker swarm join --token  {SWARM_TOKEN} {SWARM_LEADER_IP}
 
