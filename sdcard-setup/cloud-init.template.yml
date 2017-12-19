@@ -34,6 +34,7 @@ runcmd:
   - systemctl restart docker.service
 
   - docker pull {IMAGE}
+  - docker pull {NSQ_IMAGE}
 
   - docker swarm join --token  {SWARM_TOKEN} {SWARM_LEADER_IP}
 
