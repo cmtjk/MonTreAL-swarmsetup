@@ -5,10 +5,8 @@ stop_all: stop_montreal stop_environment
 # Configuration                               #
 ###############################################
 DOCKER_USER:=r3r57
-NAME:=montreal
-VERSION:=latest-multiarch
 DOMAIN:=montreal.de
-IMAGE:=${DOCKER_USER}/${NAME}:${VERSION}
+IMAGE:=r3r57/montreal:latest-multiarch
 NETWORK_OPTIONS:=--opt encrypted --attachable --driver overlay
 DIRECTORIES=influxdb chronograf grafana prometheus portainer
 
