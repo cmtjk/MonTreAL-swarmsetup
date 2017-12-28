@@ -111,8 +111,8 @@ start_montreal:
 	$(call start_service,influxdb-writer,influxdb-writer.yml)
 	@#prometheus writer
 	$(call start_service,prometheus-writer,prometheus-writer.yml)
-	@#rest
-	$(call start_service,rest,rest.yml)
+	@#web
+	$(call start_service,web,web.yml)
 	@#sensor list memcache writer
 	$(call start_service,sensor-list-memcache-writer,sensor-list-memcache-writer.yml)
 
@@ -137,8 +137,8 @@ stop_montreal:
 	$(call stop_service,influxdb-writer)
 	@#prometheus writer
 	$(call stop_service,prometheus-writer)
-	@#rest
-	$(call stop_service,rest)
+	@#web
+	$(call stop_service,web)
 	@#sensor list memcache writer
 	$(call stop_service,sensor-list-memcache-writer)
 
@@ -169,7 +169,7 @@ adapt_hosts_file:
 	${LOCAL_IP} grafana.${DOMAIN}\n\
 	${LOCAL_IP} prometheus.${DOMAIN}\n\
 	${LOCAL_IP} chronograf.${DOMAIN}\n\
-	${LOCAL_IP} rest.${DOMAIN}"\
+	${LOCAL_IP} web.${DOMAIN}"\
 	| sudo tee --append /etc/hosts
 
 restore_hosts_file:

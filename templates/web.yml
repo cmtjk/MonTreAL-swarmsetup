@@ -13,14 +13,14 @@ secrets:
     external: true
 
 services:
-  rest:
+  web:
     image: "{IMAGE}"
     networks:
       traefik-net:
       memcache-net:
     environment:
       CONFIG: /run/secrets/montreal.json
-      SERVICE: "rest"
+      SERVICE: "web"
     secrets:
       - montreal.json
     deploy:
@@ -32,11 +32,11 @@ services:
         constraints:
           - node.role == manager
       labels:
-        traefik.backend: rest
+        traefik.backend: web
         traefik.backend.loadbalancer.sticky: "true"
         traefik.docker.network: "traefik-net"
         traefik.enable: "true"
         traefik.frontend.entryPoints: "http"
         traefik.frontend.passHostHeader: "true"
-        traefik.frontend.rule: "Host:rest.{DOMAIN}"
+        traefik.frontend.rule: "Host:web.{DOMAIN}"
         traefik.port: "5000"
